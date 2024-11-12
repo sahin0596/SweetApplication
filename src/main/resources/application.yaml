@@ -1,0 +1,27 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: SweetApplication
+  datasource:
+    url: jdbc:postgresql://localhost:5432/sweet_app
+    username: swt
+    password: swt
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 5
+      idle-timeout: 10000
+      schema: public
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+
+springdoc:
+  swagger-ui.path: /api
+  paths-to-exclude: /internal/**
+  swagger-ui.tryItOutEnabled: true
+
+
