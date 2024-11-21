@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalHandlerException {
 
     @ExceptionHandler(UserOperationException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionResponse handleUserOperationException(UserOperationException e) {
         log.error(e.getMessage(), e);
         return ExceptionResponse.of(

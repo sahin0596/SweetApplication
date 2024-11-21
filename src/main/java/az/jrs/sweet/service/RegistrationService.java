@@ -1,22 +1,20 @@
 package az.jrs.sweet.service;
 
-import az.jrs.sweet.constant.ExceptionConstants;
 import az.jrs.sweet.dto.request.MailRequest;
 import az.jrs.sweet.dto.request.SignUpRequest;
 import az.jrs.sweet.dto.request.VerifyOtpRequest;
 import az.jrs.sweet.exception.UserOperationException;
 import az.jrs.sweet.mapstruck.UserMapper;
-import az.jrs.sweet.model.entity.OTP;
 import az.jrs.sweet.model.entity.User;
 import az.jrs.sweet.model.enums.Language;
-import az.jrs.sweet.repository.OTPRepository;
 import az.jrs.sweet.repository.UserRepository;
+import az.jrs.sweet.util.CacheUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
-import java.util.Optional;
 
+import static az.jrs.sweet.constant.ExceptionConstants.*;
 import static az.jrs.sweet.model.enums.Exception.*;
 
 @Service
@@ -27,22 +25,22 @@ public class RegistrationService {
     private final OTPService otpService;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final OTPRepository otpRepository;
+    private final CacheUtil cacheUtil;
 
-    public void signUp(SignUpRequest signUpRequest, Language language) {
+    public String signUp(SignUpRequest signUpRequest, Language language) {
         Long emailId = userRepository.findIdByEmail(signUpRequest.getEmail());
 
         if (Objects.isNull(emailId)) {
             User user = userMapper.signUpRequestToUser(signUpRequest);
             userRepository.save(user);
             processOTPAndSendEmail(signUpRequest);
-        } else if (otpRepository.existsByUserIdAndIsRegisteredTrue(emailId)) {
-            throw new UserOperationException(
-                    getTranslationByLanguage(EMAIL_ALREADY_EXISTS, language),
-                    ExceptionConstants.EMAIL_ALREADY_EXISTS);
         } else {
-            processOTPAndSendEmail(signUpRequest);
+            throw new UserOperationException(
+                    getTranslationByLanguage(EMAIL_ALREADY_EXISTS_CODE, language),
+                    EMAIL_ALREADY_EXISTS);
         }
+        return signUpRequest.getEmail();
+
     }
 
     private void processOTPAndSendEmail(SignUpRequest signUpRequest) {
@@ -53,36 +51,37 @@ public class RegistrationService {
 
         emailService.sendEmail(mailDto);
 
+        cacheUtil.writeToCache(signUpRequest.getEmail() + ":"+ otp,"NEW_REGISTRATION", 2L);
+
         otpService.saveOTP(signUpRequest.getEmail(), otp);
     }
 
-    public void verifyOtp(VerifyOtpRequest verifyOtpRequest,
-                          Language language) {
-        Long userId = userRepository.findIdByEmail(verifyOtpRequest.getEmail());
+    public void verifyOtp(VerifyOtpRequest verifyOtpRequest, Language language) {
+        String email = verifyOtpRequest.getEmail();
+        String otp = verifyOtpRequest.getOtp();
 
-        if (otpRepository.existsByUserIdAndIsRegisteredTrue(userId)) {
+        String attemptsKey = "otp_attempts:" + email;
+        String attemptsStr = String.valueOf(cacheUtil.getAttemptsFromCache(attemptsKey));
+        int attempts = (attemptsStr != null) ? Integer.parseInt(attemptsStr) : 0;
+
+        if (attempts >= 3) {
             throw new UserOperationException(
-                    getTranslationByLanguage(EMAIL_ALREADY_EXISTS, language),
-                    ExceptionConstants.EMAIL_ALREADY_EXISTS);        }
-
-        Optional<OTP> latestOtp = otpRepository.findLatestOtpByUserIdAndConditions(userId);
-
-        if (latestOtp.isPresent()) {
-            OTP otp = latestOtp.get();
-
-            if (otp.getOtp().equals(verifyOtpRequest.getOtp())) {
-                otp.setRegistered(true);
-                otpRepository.save(otp);
-            } else {
-                otp.setRetryCount(otp.getRetryCount() + 1);
-                otpRepository.save(otp);
-                throw new UserOperationException(
-                        getTranslationByLanguage(OTP_INCORRECT, language),
-                        ExceptionConstants.OTP_INCORRECT);            }
-        } else {
-            throw new UserOperationException(
-                    getTranslationByLanguage(OTP_NOT_FOUND, language),
-                    ExceptionConstants.OTP_NOT_FOUND);
+                    getTranslationByLanguage(MAX_ATTEMPTS_EXCEEDED_CODE, language),
+                    MAX_ATTEMPTS_EXCEEDED);
         }
+
+        String otpKey = email + ":" + otp;
+
+        // Validate OTP
+        boolean isCorrectOtp = cacheUtil.onlyReadWithKeyFromCache(otpKey) != null;
+        if (!isCorrectOtp) {
+            cacheUtil.incrementCacheValue(attemptsKey);
+            throw new UserOperationException(
+                    getTranslationByLanguage(OTP_INCORRECT_CODE, language),
+                    OTP_INCORRECT);
+        }
+
+        cacheUtil.deleteFromCache(attemptsKey);
+        cacheUtil.deleteFromCache(otpKey);
     }
 }

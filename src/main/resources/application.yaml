@@ -19,9 +19,15 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
 
-springdoc:
-  swagger-ui.path: /api
-  paths-to-exclude: /internal/**
-  swagger-ui.tryItOutEnabled: true
+mail:
+  host: smtp.gmail.com
+  port: 587
+  username: snsibov23@gmail.com
+  password: urqg lgov pcux zdli
+
+#springdoc:
+#  swagger-ui.path: /api
+#  paths-to-exclude: /internal/**
+#  swagger-ui.tryItOutEnabled: true
 
 

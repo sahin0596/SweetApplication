@@ -1,6 +1,7 @@
 package az.jrs.sweet.controller;
 import az.jrs.sweet.dto.request.SignUpRequest;
 import az.jrs.sweet.dto.request.VerifyOtpRequest;
+import az.jrs.sweet.dto.response.SignUpResponse;
 import az.jrs.sweet.model.enums.Language;
 import az.jrs.sweet.service.RegistrationService;
 import lombok.RequiredArgsConstructor;
@@ -20,12 +21,13 @@ public class RegistrationController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/sign-up")
-    public ResponseEntity<String> signUp(@RequestBody SignUpRequest signUpRequest,
-                                         @RequestHeader(value = LANGUAGE,defaultValue = "AZE") Language language ) {
-        registrationService.signUp(signUpRequest,language);
-        return ResponseEntity.ok("OTP sent to email. Please verify to complete registration.");
+    public String signUp(@RequestBody SignUpRequest signUpRequest,
+                                 @RequestHeader(value = LANGUAGE,defaultValue = "AZE") Language language) {
+       return registrationService.signUp(signUpRequest,language);
+
     }
 
+    @ResponseStatus(HttpStatus.ACCEPTED)
     @PostMapping("/verify-otp")
     public ResponseEntity<String> verifyOtp(@RequestBody VerifyOtpRequest verifyOtpRequest,
                                             @RequestHeader(value = LANGUAGE,defaultValue = "AZE") Language language ) {
@@ -34,5 +36,4 @@ public class RegistrationController {
             return ResponseEntity.ok("Otp is succecfully verify");
         }
     }
-
 }

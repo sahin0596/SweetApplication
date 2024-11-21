@@ -23,9 +23,11 @@ public class OTPService {
     }
 
     public void saveOTP(String email, String otp) {
-        User user = userRepository.findByEmail(email);
-        OTP otpEntity = userMapper.mapToOTP(user, otp);
-        otpRepository.save(otpEntity);
-
-    }
+        User userId = userRepository.findByEmail(email);
+            OTP otpEntity = new OTP();
+            otpEntity.setUser(userId);
+            otpEntity.setOtp(otp);
+            otpEntity.setCreated(java.time.LocalDateTime.now());
+            otpRepository.save(otpEntity);
+        }
 }
