@@ -1,4 +1,5 @@
 package az.jrs.sweet.controller;
+
 import az.jrs.sweet.dto.request.SignUpRequest;
 import az.jrs.sweet.dto.request.VerifyOtpRequest;
 import az.jrs.sweet.dto.response.SignUpResponse;
@@ -6,7 +7,6 @@ import az.jrs.sweet.model.enums.Language;
 import az.jrs.sweet.service.RegistrationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static az.jrs.sweet.constant.Headers.LANGUAGE;
@@ -19,21 +19,28 @@ public class RegistrationController {
 
     private final RegistrationService registrationService;
 
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/retry-otp")
+    public void retryOtp(@RequestParam String email,
+                         @RequestHeader(value = LANGUAGE, defaultValue = "AZE") Language language) {
+        registrationService.retryOtp(email, language);
+    }
+
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/sign-up")
-    public String signUp(@RequestBody SignUpRequest signUpRequest,
-                                 @RequestHeader(value = LANGUAGE,defaultValue = "AZE") Language language) {
-       return registrationService.signUp(signUpRequest,language);
+    public SignUpResponse signUp(@RequestBody SignUpRequest signUpRequest,
+                                 @RequestHeader(value = LANGUAGE, defaultValue = "AZE") Language language) {
+        return registrationService.signUp(signUpRequest, language);
 
     }
 
     @ResponseStatus(HttpStatus.ACCEPTED)
     @PostMapping("/verify-otp")
-    public ResponseEntity<String> verifyOtp(@RequestBody VerifyOtpRequest verifyOtpRequest,
-                                            @RequestHeader(value = LANGUAGE,defaultValue = "AZE") Language language ) {
+    public void verifyOtp(@RequestBody VerifyOtpRequest verifyOtpRequest,
+                          @RequestHeader(value = LANGUAGE, defaultValue = "AZE") Language language) {
         {
-            registrationService.verifyOtp(verifyOtpRequest,language);
-            return ResponseEntity.ok("Otp is succecfully verify");
+            registrationService.verifyOtp(verifyOtpRequest, language);
         }
+
     }
 }

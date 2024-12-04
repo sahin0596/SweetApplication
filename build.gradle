@@ -57,6 +57,16 @@ dependencies {
     //Redis
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '3.3.5'
 
+    //Security
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+    // Spring Security for password encoding
+    implementation 'org.springframework.security:spring-security-crypto'
+
+    // Bcrypt
+    implementation group: 'org.springframework.security', name: 'spring-security-crypto', version: '6.4.1'
 
 
 

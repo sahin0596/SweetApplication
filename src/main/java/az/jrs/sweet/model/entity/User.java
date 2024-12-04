@@ -29,6 +29,8 @@ public class User {
 
     String password;
 
+    Boolean isRegistered;
+
     @Enumerated(EnumType.STRING)
     Role role;
 

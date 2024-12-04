@@ -12,14 +12,7 @@ import static lombok.AccessLevel.PRIVATE;
 @FieldDefaults(level = PRIVATE)
 public class SignUpResponse {
 
-    Long id;
-
-    String username;
-
-    String email;
-
-    String password;
-
-    Role role;
+    String accessToken;
+    String refreshToken;
 
 }
