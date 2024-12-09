@@ -1,12 +1,12 @@
 server:
-  port: 8080
+  port: 8081
 spring:
   application:
     name: SweetApplication
   datasource:
     url: jdbc:postgresql://localhost:5432/sweet_app
-    username: swt
-    password: swt
+    username: postgres
+    password: 2004
     driver-class-name: org.postgresql.Driver
     hikari:
       minimum-idle: 5

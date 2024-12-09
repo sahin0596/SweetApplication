@@ -36,7 +36,15 @@ public enum Exception {
             "OTP düzgün deyil.",
             "OTP is incorrect.",
             "OTP неверен."
+    )
+    ,
+    INVALID_CREDENTIALS_CODE(
+            "INVALID_CREDENTIALS",
+            "E-poçt və ya şifrə düzgün deyil.",
+            "Email or password is incorrect.",
+            "Электронная почта или пароль неверны."
     ),
+
     EMAIL_NOT_VERIFIED_CODE(
             "EMAIL_NOT_VERIFIED",
                     "Email təsdiqlənməyib.",
@@ -49,6 +57,14 @@ public enum Exception {
             "User not found.",
             "Пользователь не найден."
     ),
+    USER_NOT_REGISTERED_CODE(
+            "USER_NOT_REGISTERED",
+            "Bu e-poçt ünvanı qeydiyyatdan keçməyib.",
+            "This email is not registered.",
+            "Этот адрес электронной почты не зарегистрирован."
+    ),
+
+
     TOKEN_EXPIRED_CODE(
             "TOKEN_EXPIRED",
                     "Tokenin müddəti bitib.",
