@@ -4,11 +4,11 @@ services:
     image: redis:latest
     ports:
       - "6379:6379"
-  postgres:
-    image: postgres:13
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: swt
-      POSTGRES_PASSWORD: swt
-      POSTGRES_DB: sweet_app
+#  postgres:
+#    image: postgres:13
+#    ports:
+#      - "5432:5432"
+#    environment:
+#      POSTGRES_USER: swt
+#      POSTGRES_PASSWORD: swt
+#      POSTGRES_DB: sweet_app

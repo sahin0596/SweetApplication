@@ -14,6 +14,7 @@ import az.jrs.sweet.util.CacheUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -123,8 +124,16 @@ public class RegistrationService {
     }
 
     public void retryOtp(String email,Language language) {
+        Optional<User> existingUser = userRepository.findByEmail(email);
+        if (existingUser.isEmpty()) {
+            throw new UserOperationException(
+                    getTranslationByLanguage(USER_NOT_REGISTERED_CODE, language),
+                    USER_NOT_REGISTERED);
+            }
+
         String otp = generateOTP();
         String message = String.format("OTP: %s", otp);
+
         MailRequest mailDto = userMapper.emailToMailRequest(email, message);
         emailService.sendEmail(mailDto, language);
         cacheUtil.writeToCache(email + ":" + otp, "RETRY_OTP", 2L);
