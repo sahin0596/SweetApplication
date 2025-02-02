@@ -18,17 +18,24 @@ public enum Exception {
             "This email is already registered.",
             "Этот адрес электронной почты уже зарегистрирован."
     ),
+    EMAIL_NOT_REGISTERED_CODE(
+            "EMAIL_NOT_REGISTERED",
+            "Bu e-poçt ünvanı qeydiyyatdan keçməyib.",
+            "This email is not registered.",
+            "Этот адрес электронной почты не зарегистрирован."
+    )
+    ,
     MAX_ATTEMPTS_EXCEEDED_CODE(
             "MAX_ATTEMPTS_EXCEEDED",
             "Siz artıq 3-dəfə cəhd etmisiniz.",
             "You have already attempted 3 times.",
             "Вы уже сделали 3 попытки."
     ),
-    TOKEN_EMAIL_MISMATCH_CODE(
-            "TOKEN_EMAIL_MISMATCH",
-            "Token email ünvanı təqdim olunan email ilə uyğun gəlmir.",
-            "Token email does not match the provided email.",
-            "Токен не соответствует предоставленному email."
+    ACCESS_TOKEN_INVALID_CODE(
+            "ACCESS_TOKEN_INVALID",
+            "Bu giriş tokeni keçərli deyil.",
+            "This access token is invalid.",
+            "Этот токен доступа недействителен."
     ),
 
     OTP_INCORRECT_CODE(
@@ -49,11 +56,42 @@ public enum Exception {
             "User not found.",
             "Пользователь не найден."
     ),
-    TOKEN_EXPIRED_CODE(
-            "TOKEN_EXPIRED",
-                    "Tokenin müddəti bitib.",
-                    "Token has expired.",
-                    "Срок действия токена истек."
+    INCORRECT_PASSWORD_CODE(
+            "INCORRECT_PASSWORD",
+            "Şifrə yanlışdır.",
+            "Incorrect password.",
+            "Неверный пароль."
+    ),
+    ACCOUNT_BLOCKED_CODE(
+            "ACCOUNT_BLOCKED",
+            "Hesabınız müvəqqəti bloklanıb.",
+            "Your account is temporarily blocked.",
+            "Ваш аккаунт временно заблокирован."
+    ),
+
+    ACCOUNT_BLOCKED_5MIN_CODE(
+            "ACCOUNT_BLOCKED_5MIN",
+            "3 dəfə səhv etdiniz. Hesabınız 5 dəqiqəlik bloklanıb.",
+            "You have entered the wrong password 3 times. Your account is blocked for 5 minutes.",
+            "Вы ввели неправильный пароль 3 раза. Ваш аккаунт заблокирован на 5 минут."
+    ),
+    ACCOUNT_BLOCKED_NO_LIMIT_CODE(
+            "ACCOUNT_BLOCKED_NO_LIMIT",
+            "Hesabınız bloklanıb, zəhmət olmasa bizimlə əlaqə saxlayın.",
+            "Your account is blocked, please contact support.",
+            "Ваша учетная запись заблокирована, пожалуйста, свяжитесь с поддержкой."
+    ),
+    MISSING_IDEMPOTENCY_KEY_CODE(
+            "MISSING_IDEMPOTENCY_KEY",
+            "Idempotency-Key tələb olunur!",
+            "Idempotency-Key is required!",
+            "Требуется Idempotency-Key"
+    ),
+    DUPLICATE_REQUEST_CODE(
+            "DUPLICATE_REQUEST",
+            "Eyni idempotent açar ilə təkrarlanan sorğu aşkar edildi.",
+            "Duplicate request detected with the same idempotency key.",
+            "Обнаружен повторяющийся запрос с тем же ключом идемпотентности."
     );
     private final String code;
     private final String translationAz;
