@@ -12,7 +12,6 @@ public interface ExceptionConstants {
     String INCORRECT_PASSWORD = "Incorrect Password";
     String ACCOUNT_BLOCKED_5MIN = "Account Blocked 5 Min";
     String ACCOUNT_BLOCKED_NO_LIMIT = "Account Blocked No Limit";
-    String MISSING_IDEMPOTENCY_KEY = "Missing Idempotency Key";
     String DUPLICATE_REQUEST = "Duplicate Request";
     String ACCESS_TOKEN_INVALID = "Access Token Invalid";
 }

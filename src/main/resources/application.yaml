@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8081
 spring:
   application:
     name: SweetApplication
@@ -25,6 +25,13 @@ mail:
   username: snsibov23@gmail.com
   password: urqg lgov pcux zdli
 
-
-
-
+springdoc:
+  api-docs:
+    enabled: true
+    path: '/v3/api-docs'
+  swagger-ui:
+    path: '/swagger-ui'
+    config-url: '/api/ms-registration/v3/api-docs/swagger-config'
+    url: '/api/ms-registration/v3/api-docs'
+    doc-expansion: none
+    disable-swagger-default-url: true

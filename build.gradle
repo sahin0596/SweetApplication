@@ -64,8 +64,6 @@ dependencies {
     // Bcrypt
     implementation group: 'org.springframework.security', name: 'spring-security-crypto', version: '6.4.1'
 
-
-
 }
 
 tasks.named('test') {

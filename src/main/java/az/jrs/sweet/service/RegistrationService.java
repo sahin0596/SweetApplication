@@ -4,7 +4,6 @@ import az.jrs.sweet.config.SecurityConfig;
 import az.jrs.sweet.dto.request.LoginRequest;
 import az.jrs.sweet.dto.request.MailRequest;
 import az.jrs.sweet.dto.request.SignUpRequest;
-import az.jrs.sweet.dto.request.VerifyOtpRequest;
 import az.jrs.sweet.dto.response.SignUpResponse;
 import az.jrs.sweet.exception.UserOperationException;
 import az.jrs.sweet.mapstruck.UserMapper;
@@ -15,7 +14,6 @@ import az.jrs.sweet.util.CacheUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -36,13 +34,8 @@ public class RegistrationService {
     private final SecurityConfig securityConfig;
 
     @Transactional
-    public SignUpResponse signUp(SignUpRequest signUpRequest, String idempotencyKey, Language language) {
-        if (idempotencyKey == null || idempotencyKey.isEmpty()) {
-            throw new UserOperationException(
-                    getTranslationByLanguage(MISSING_IDEMPOTENCY_KEY_CODE, language),
-                    MISSING_IDEMPOTENCY_KEY);
-        }
-        String cacheKey = "idempotency:" + idempotencyKey;
+    public SignUpResponse signUp(SignUpRequest signUpRequest, Language language) {
+        String cacheKey = "idempotency:" + signUpRequest.getEmail();
 
         if (cacheUtil.onlyReadWithKeyFromCache(cacheKey) != null) {
             throw new UserOperationException(
@@ -77,8 +70,6 @@ public class RegistrationService {
             String accessToken = jwtService.generateAccessToken(user);
             String refreshToken = jwtService.generateRefreshToken(user);
 
-            cacheUtil.writeToCache(cacheKey, "COMPLETED", 60L);
-
             return new SignUpResponse(accessToken, refreshToken);
         } catch (Exception e) {
             cacheUtil.deleteFromCache(cacheKey);
@@ -98,7 +89,7 @@ public class RegistrationService {
     public void verifyOtp(String otp,
                           String accessToken,
                           Language language) {
-        String email = extractEmailFromToken(accessToken,language);
+        String email = extractEmailFromToken(accessToken, language);
 
         if (email == null) {
             throw new UserOperationException(
@@ -139,7 +130,7 @@ public class RegistrationService {
 
     }
 
-    private String extractEmailFromToken(String accessToken,Language language) {
+    private String extractEmailFromToken(String accessToken, Language language) {
         try {
             Claims claims = jwtService.parseToken(accessToken);
             return claims.getSubject();
@@ -148,7 +139,7 @@ public class RegistrationService {
                     getTranslationByLanguage(ACCESS_TOKEN_INVALID_CODE, language),
                     ACCESS_TOKEN_INVALID);
 
-    }
+        }
     }
 
     private boolean validateOtp(String email, String otp) {
@@ -163,7 +154,7 @@ public class RegistrationService {
     }
 
     public SignUpResponse retryOtp(String email,
-                         Language language) {
+                                   Language language) {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserOperationException(
@@ -178,7 +169,7 @@ public class RegistrationService {
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
 
-            return new SignUpResponse(accessToken, refreshToken);
+        return new SignUpResponse(accessToken, refreshToken);
     }
 
     public SignUpResponse login(LoginRequest loginRequest, Language language) {
@@ -194,33 +185,33 @@ public class RegistrationService {
                         USER_NOT_FOUND
                 ));
 
-            int attempts = Optional.ofNullable(cacheUtil.onlyReadWithKeyFromCache(attemptsKey))
-                    .map(Object::toString)
-                    .map(Integer::parseInt)
-                    .orElse(0) + 1;
+        int attempts = Optional.ofNullable(cacheUtil.onlyReadWithKeyFromCache(attemptsKey))
+                .map(Object::toString)
+                .map(Integer::parseInt)
+                .orElse(0) + 1;
 
-            int totalAttempts = Optional.ofNullable(cacheUtil.onlyReadWithKeyFromCache(totalAttemptsKey))
-                    .map(Object::toString)
-                    .map(Integer::parseInt)
-                    .orElse(0) + 1;
+        int totalAttempts = Optional.ofNullable(cacheUtil.onlyReadWithKeyFromCache(totalAttemptsKey))
+                .map(Object::toString)
+                .map(Integer::parseInt)
+                .orElse(0) + 1;
 
 
-            if (attempts >= 4) {
-                throw new UserOperationException(
-                        getTranslationByLanguage(ACCOUNT_BLOCKED_5MIN_CODE, language),
-                        ACCOUNT_BLOCKED_5MIN
-                );
-            }
-            if (totalAttempts >= 5) {
-                throw new UserOperationException(
-                        getTranslationByLanguage(ACCOUNT_BLOCKED_NO_LIMIT_CODE, language),
-                        ACCOUNT_BLOCKED_NO_LIMIT
-                );
-            }
-            cacheUtil.writeToCache(attemptsKey, String.valueOf(attempts), 5L);
-            cacheUtil.writeToCacheNoLimit(totalAttemptsKey, String.valueOf(totalAttempts));
+        if (attempts >= 4) {
+            throw new UserOperationException(
+                    getTranslationByLanguage(ACCOUNT_BLOCKED_5MIN_CODE, language),
+                    ACCOUNT_BLOCKED_5MIN
+            );
+        }
+        if (totalAttempts >= 5) {
+            throw new UserOperationException(
+                    getTranslationByLanguage(ACCOUNT_BLOCKED_NO_LIMIT_CODE, language),
+                    ACCOUNT_BLOCKED_NO_LIMIT
+            );
+        }
+        cacheUtil.writeToCache(attemptsKey, String.valueOf(attempts), 5L);
+        cacheUtil.writeToCacheNoLimit(totalAttemptsKey, String.valueOf(totalAttempts));
 
-            if (!securityConfig.passwordEncoder().matches(password, user.getPassword())) {
+        if (!securityConfig.passwordEncoder().matches(password, user.getPassword())) {
             throw new UserOperationException(
                     getTranslationByLanguage(INCORRECT_PASSWORD_CODE, language),
                     INCORRECT_PASSWORD
